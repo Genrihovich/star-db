@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import SwapiService from '../../services/swapiService';
 import './RandomPlanet.css';
+import { Spinner } from '../Spinner/Spinner';
+import PlanetView from './PlanetView';
 
 export default class RandomPlanet extends Component {
     swapiService = new SwapiService();
 
     state = {
-        planet: {}
+        planet: {},
+        loading: true,
     }
 
     constructor() {
@@ -15,7 +18,7 @@ export default class RandomPlanet extends Component {
     }
 
     onPlanetLoaded = (planet) => {
-        this.setState({ planet });
+        this.setState({ planet, loading: false });
     }
 
     updatePlanet() {
@@ -27,31 +30,14 @@ export default class RandomPlanet extends Component {
 
 
     render() {
-        const { planet: { id, name, population, rotationPeriod, diameter } } = this.state;
-
+        const { planet, loading } = this.state;
+        const spinner = loading ? <Spinner /> : null;
+        const planetView = !loading ? <PlanetView planet={planet} /> : null;
 
         return (
-
             <div className="random-planet jumbotron rounded">
-                <img className="planet-image" alt='planerImg'
-                    src={`https://starwars-visualguide.com/assets/img/planets/${id}.jpg`} />
-                <div>
-                    <h4>{name}</h4>
-                    <ul className="list-group list-group-flush">
-                        <li className="list-group-item">
-                            <span className="term">Population</span>
-                            <span>{population}</span>
-                        </li>
-                        <li className="list-group-item">
-                            <span className="term">Rotation Period</span>
-                            <span>{rotationPeriod}</span>
-                        </li>
-                        <li className="list-group-item">
-                            <span className="term">Diameter</span>
-                            <span>{diameter}</span>
-                        </li>
-                    </ul>
-                </div>
+                {spinner}
+                {planetView}
             </div>
         )
     }

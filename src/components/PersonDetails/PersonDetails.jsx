@@ -1,32 +1,52 @@
 import React, { Component } from 'react';
+import SwapiService from '../../services/swapiService';
+import { Spinner } from '../Spinner/Spinner';
 
 import './PersonDetails.css';
+import { PersonView } from './PersonView';
 
 export default class PersonDetails extends Component {
 
+    swapiService = new SwapiService;
+
+    state = {
+        person: null,
+        loading: true
+    }
+    componentDidMount() {
+        this.updatePerson();
+    }
+    componentDidUpdate(prevProps) {
+        if (this.props.personId !== prevProps.personId) {
+            this.updatePerson();
+        }
+    }
+    updatePerson() {
+        const { personId } = this.props;
+        if (!personId) { return; };
+
+        this.swapiService
+            .getPerson(personId)
+            .then((person) => {
+                this.setState({
+                    person,
+                    loading: false
+                })
+            })
+    }
+
     render() {
+        if (!this.state.person) {
+            return <span>Select a person from a list</span>
+        }
+        const { loading, person } = this.state;
+        const spinner = loading ? <Spinner /> : null;
+        const personView = !loading ? <PersonView person={person} /> : null
+
         return (
             <div className="person-details card">
-                <img className="person-image" alt='img'
-                    src="https://starwars-visualguide.com/assets/img/characters/3.jpg" />
-
-                <div className="card-body">
-                    <h4>R2-D2</h4>
-                    <ul className="list-group list-group-flush">
-                        <li className="list-group-item">
-                            <span className="term">Gender</span>
-                            <span>male</span>
-                        </li>
-                        <li className="list-group-item">
-                            <span className="term">Birth Year</span>
-                            <span>43</span>
-                        </li>
-                        <li className="list-group-item">
-                            <span className="term">Eye Color</span>
-                            <span>red</span>
-                        </li>
-                    </ul>
-                </div>
+                {spinner}
+                {personView}
             </div>
         )
     }
